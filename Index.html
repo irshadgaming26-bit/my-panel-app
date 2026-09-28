@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+
+<title>Real APK Builder</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:#07111f;
+    color:#fff;
+}
+
+.container{
+    width:100%;
+    max-width:520px;
+    margin:auto;
+    padding:15px;
+}
+
+.header{
+    background:linear-gradient(135deg,#102238,#16364b);
+    border:1px solid #2d4b66;
+    border-radius:20px;
+    padding:20px;
+    margin-bottom:15px;
+}
+
+.header h1{
+    font-size:25px;
+    margin-bottom:7px;
+}
+
+.header p{
+    color:#9fb4ca;
+    font-size:13px;
+}
+
+.step{
+    display:none;
+}
+
+.step.active{
+    display:block;
+}
+
+.card{
+    background:#0e1b2b;
+    border:1px solid #263f59;
+    border-radius:18px;
+    padding:18px;
+    margin-bottom:15px;
+}
+
+.card h2{
+    font-size:20px;
+    margin-bottom:16px;
+}
+
+label{
+    display:block;
+    color:#c8d5e5;
+    font-size:14px;
+    margin-bottom:7px;
+}
+
+input,
+select,
+textarea{
+    width:100%;
+    padding:13px;
+    margin-bottom:14px;
+    border-radius:11px;
+    border:1px solid #304b66;
+    background:#071321;
+    color:#fff;
+    outline:none;
+}
+
+input:focus,
+textarea:focus{
+    border-color:#35dc83;
+}
+
+textarea{
+    min-height:190px;
+    resize:vertical;
+    line-height:1.45;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    margin-top:7px;
+    border:0;
+    border-radius:12px;
+    background:#35dc83;
+    color:#06130c;
+    font-weight:bold;
+    font-size:15px;
+}
+
+button.secondary{
+    background:#263b52;
+    color:#fff;
+}
+
+button:disabled{
+    opacity:.5;
+}
+
+.row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.source-buttons{
+    display:grid;
+    gap:8px;
+    margin-bottom:15px;
+}
+
+.source-buttons button{
+    background:#1d3148;
+    color:#fff;
+}
+
+.source-buttons button.selected{
+    background:#35dc83;
+    color:#06130c;
+}
+
+.hidden{
+    display:none!important;
+}
+
+.file-box{
+    border:1px dashed #42627f;
+    padding:16px;
+    border-radius:12px;
+    text-align:center;
+}
+
+.file-name{
+    color:#72e9aa;
+    font-size:13px;
+    margin-top:8px;
+    word-break:break-word;
+}
+
+.icon-preview{
+    width:90px;
+    height:90px;
+    object-fit:cover;
+    border-radius:20px;
+    border:1px solid #45617d;
+    display:none;
+    margin:5px 0 15px;
+}
+
+.toggle-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:#091624;
+    border:1px solid #263f59;
+    border-radius:12px;
+    padding:13px;
+    margin-bottom:10px;
+}
+
+.toggle-row span{
+    font-size:14px;
+}
+
+.switch{
+    width:48px;
+    height:26px;
+    position:relative;
+    margin:0;
+}
+
+.switch input{
+    display:none;
+}
+
+.slider{
+    position:absolute;
+    inset:0;
+    background:#34485d;
+    border-radius:30px;
+}
+
+.slider:before{
+    content:"";
+    position:absolute;
+    width:20px;
+    height:20px;
+    left:3px;
+    top:3px;
+    background:#fff;
+    border-radius:50%;
+    transition:.2s;
+}
+
+.switch input:checked + .slider{
+    background:#20ca75;
+}
+
+.switch input:checked + .slider:before{
+    transform:translateX(22px);
+}
+
+.status{
+    background:#071321;
+    border:1px solid #243b54;
+    border-radius:12px;
+    padding:13px;
+    margin-top:14px;
+    color:#b9c9db;
+    font-size:13px;
+    line-height:1.5;
+    white-space:pre-wrap;
+}
+
+.success{
+    color:#6ff0aa;
+}
+
+.warning{
+    color:#ffd27c;
+}
+
+.error{
+    color:#ff8095;
+}
+
+.progress{
+    width:100%;
+    height:10px;
+    background:#17283a;
+    border-radius:20px;
+    overflow:hidden;
+    margin-top:12px;
+}
+
+.progress-bar{
+    width:0%;
+    height:100%;
+    background:#35dc83;
+    transition:.3s;
+}
+
+.summary{
+    background:#091624;
+    border-radius:12px;
+    padding:13px;
+    line-height:1.8;
+    font-size:13px;
+    color:#c7d4e4;
+}
+
+.download{
+    display:none;
+    background:#35dc83;
+    color:#06130c;
+    text-decoration:none;
+    text-align:center;
+    padding:14px;
+    border-radius:12px;
+    font-weight:bold;
+    margin-top:12px;
+}
+
+.small{
+    font-size:12px;
+    color:#8fa4b9;
+    line-height:1.5;
+    margin-top:8px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+    <h1>⚡ REAL APK BUILDER</h1>
+    <p>HTML → Android APK Builder</p>
+</div>
+
+
+<!-- STEP 1 -->
+<section id="step1" class="step active">
+
+<div class="card">
+
+<h2>1. Source</h2>
+
+<div class="source-buttons">
+
+<button id="codeBtn" onclick="selectSource('code')">
+HTML CODE
+</button>
+
+<button id="fileBtn" onclick="selectSource('file')">
+HTML / ZIP FILE
+</button>
+
+<button id="urlBtn" onclick="selectSource('url')">
+WEBSITE URL
+</button>
+
+</div>
+
+
+<div id="codeSource">
+
+<label>Complete HTML Code</label>
+
+<textarea id="htmlCode"
+placeholder="<!DOCTYPE html>
+<html>
+<head>
+<title>My App</title>
+</head>
+<body>
+<h1>Hello</h1>
+</body>
+</html>"></textarea>
+
+</div>
+
+
+<div id="fileSource" class="hidden">
+
+<label>Choose HTML / ZIP File</label>
+
+<div class="file-box">
+
+<input id="htmlFile"
+type="file"
+accept=".html,.htm,.zip">
+
+<div id="htmlFileName" class="file-name">
+No file selected
+</div>
+
+</div>
+
+</div>
+
+
+<div id="urlSource" class="hidden">
+
+<label>Website URL</label>
+
+<input id="websiteUrl"
+type="url"
+placeholder="https://example.com">
+
+</div>
+
+</div>
+
+<button onclick="goToStep(2)">
+NEXT →
+</button>
+
+</section>
+
+
+<!-- STEP 2 -->
+<section id="step2" class="step">
+
+<div class="card">
+
+<h2>2. App Details</h2>
+
+<label>App Name</label>
+
+<input id="appName"
+type="text"
+value="My Game"
+placeholder="My Game">
+
+
+<label>Package Name</label>
+
+<input id="packageName"
+type="text"
+value="com.example.mygame"
+placeholder="com.example.mygame">
+
+
+<label>Version Name</label>
+
+<input id="versionName"
+type="text"
+value="1.0">
+
+
+<label>Version Code</label>
+
+<input id="versionCode"
+type="number"
+value="1"
+min="1">
+
+
+<label>App Icon</label>
+
+<input id="iconFile"
+type="file"
+accept="image/png,image/jpeg,image/webp">
+
+<img id="iconPreview" class="icon-preview">
+
+<div id="iconFileName" class="file-name"></div>
+
+</div>
+
+
+<div class="row">
+
+<button class="secondary" onclick="goToStep(1)">
+← BACK
+</button>
+
+<button onclick="goToStep(3)">
+NEXT →
+</button>
+
+</div>
+
+</section>
+
+
+<!-- STEP 3 -->
+<section id="step3" class="step">
+
+<div class="card">
+
+<h2>3. AdMob</h2>
+
+<div class="toggle-row">
+
+<span>Enable AdMob</span>
+
+<label class="switch">
+
+<input id="admobEnabled"
+type="checkbox"
+onchange="toggleAdMob()">
+
+<span class="slider"></span>
+
+</label>
+
+</div>
+
+
+<div id="admobFields" class="hidden">
+
+<label>AdMob App ID</label>
+
+<input id="admobAppId"
+placeholder="ca-app-pub-xxxxxxxxxxxxxxxx~xxxxxxxxxx">
+
+
+<label>Banner Ad Unit ID</label>
+
+<input id="bannerAdUnitId"
+placeholder="ca-app-pub-xxxxxxxxxxxxxxxx/xxxxxxxxxx">
+
+
+<label>Interstitial Ad Unit ID</label>
+
+<input id="interstitialAdUnitId"
+placeholder="Optional">
+
+
+<label>Rewarded Ad Unit ID</label>
+
+<input id="rewardedAdUnitId"
+placeholder="Optional">
+
+</div>
+
+<div class="status warning">
+AdMob IDs backend को भेजी जाएँगी। केवल HTML में ID डालने से native AdMob अपने आप काम नहीं करता।
+</div>
+
+</div>
+
+
+<div class="row">
+
+<button class="secondary" onclick="goToStep(2)">
+← BACK
+</button>
+
+<button onclick="goToStep(4)">
+NEXT →
+</button>
+
+</div>
+
+</section>
+
+
+<!-- STEP 4 -->
+<section id="step4" class="step">
+
+<div class="card">
+
+<h2>4. Permissions</h2>
+
+
+<div class="toggle-row">
+<span>Internet</span>
+
+<label class="switch">
+<input id="internetPermission" type="checkbox" checked>
+<span class="slider"></span>
+</label>
+</div>
+
+
+<div class="toggle-row">
+<span>Notifications</span>
+
+<label class="switch">
+<input id="notificationPermission" type="checkbox">
+<span class="slider"></span>
+</label>
+</div>
+
+
+<div class="toggle-row">
+<span>Display / Overlay</span>
+
+<label class="switch">
+<input id="displayPermission" type="checkbox">
+<span class="slider"></span>
+</label>
+</div>
+
+
+<div class="toggle-row">
+<span>Camera</span>
+
+<label class="switch">
+<input id="cameraPermission" type="checkbox">
+<span class="slider"></span>
+</label>
+</div>
+
+
+<div class="toggle-row">
+<span>Microphone</span>
+
+<label class="switch">
+<input id="microphonePermission" type="checkbox">
+<span class="slider"></span>
+</label>
+</div>
+
+
+<div class="toggle-row">
+<span>Storage / Files</span>
+
+<label class="switch">
+<input id="storagePermission" type="checkbox">
+<span class="slider"></span>
+</label>
+</div>
+
+
+<div class="toggle-row">
+<span>PC Mode</span>
+
+<label class="switch">
+<input id="pcMode" type="checkbox">
+<span class="slider"></span>
+</label>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Build Summary</h2>
+
+<div id="summary" class="summary">
+Build details यहाँ दिखाई देंगी।
+</div>
+
+</div>
+
+
+<button id="buildButton" onclick="buildAPK()">
+🚀 BUILD APK
+</button>
+
+
+<div id="buildStatus" class="status">
+Ready to build.
+</div>
+
+
+<div class="progress">
+
+<div id="progressBar"
+class="progress-bar"></div>
+
+</div>
+
+
+<a id="downloadAPK"
+class="download"
+href="#"
+download>
+📥 DOWNLOAD APK
+</a>
+
+
+<button class="secondary" onclick="goToStep(3)">
+← BACK
+</button>
+
+</section>
+
+</div>
+
+
+<script>
+
+/*
+=========================================================
+REAL BUILD API
+=========================================================
+
+जब हमारा backend तैयार हो जाएगा तब यहाँ उसका
+actual HTTPS address डालेंगे.
+
+Example:
+
+const BUILD_API =
+"https://your-backend-domain.com/api/build";
+
+अभी इसे खाली रहने दें.
+*/
+
+const BUILD_API = "";
+
+
+/* SOURCE */
+
+let selectedSource = "code";
+
+
+function selectSource(type){
+
+    selectedSource = type;
+
+    document.getElementById("codeSource")
+    .classList.add("hidden");
+
+    document.getElementById("fileSource")
+    .classList.add("hidden");
+
+    document.getElementById("urlSource")
+    .classList.add("hidden");
+
+    document.getElementById("codeBtn")
+    .classList.remove("selected");
+
+    document.getElementById("fileBtn")
+    .classList.remove("selected");
+
+    document.getElementById("urlBtn")
+    .classList.remove("selected");
+
+
+    if(type === "code"){
+
+        document.getElementById("codeSource")
+        .classList.remove("hidden");
+
+        document.getElementById("codeBtn")
+        .classList.add("selected");
+
+    }
+
+
+    if(type === "file"){
+
+        document.getElementById("fileSource")
+        .classList.remove("hidden");
+
+        document.getElementById("fileBtn")
+        .classList.add("selected");
+
+    }
+
+
+    if(type === "url"){
+
+        document.getElementById("urlSource")
+        .classList.remove("hidden");
+
+        document.getElementById("urlBtn")
+        .classList.add("selected");
+
+    }
+
+}
+
+
+/* FILE */
+
+document.getElementById("htmlFile")
+.addEventListener("change",function(){
+
+    const file = this.files[0];
+
+    document.getElementById("htmlFileName")
+    .textContent =
+    file
+    ? "Selected: " + file.name
+    : "No file selected";
+
+});
+
+
+/* ICON */
+
+document.getElementById("iconFile")
+.addEventListener("change",function(){
+
+    const file = this.files[0];
+
+    if(!file){
+        return;
+    }
+
+    document.getElementById("iconFileName")
+    .textContent =
+    "Selected: " + file.name;
+
+
+    const reader = new FileReader();
+
+    reader.onload = function(e){
+
+        const preview =
+        document.getElementById("iconPreview");
+
+        preview.src = e.target.result;
+
+        preview.style.display = "block";
+
+    };
+
+    reader.readAsDataURL(file);
+
+});
+
+
+/* NAVIGATION */
+
+function goToStep(number){
+
+    document.querySelectorAll(".step")
+    .forEach(function(step){
+
+        step.classList.remove("active");
+
+    });
+
+
+    const target =
+    document.getElementById("step" + number);
+
+    if(target){
+        target.classList.add("active");
+    }
+
+
+    if(number === 4){
+        updateSummary();
+    }
+
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+}
+
+
+/* ADMOB */
+
+function toggleAdMob(){
+
+    const enabled =
+    document.getElementById("admobEnabled").checked;
+
+    const fields =
+    document.getElementById("admobFields");
+
+
+    if(enabled){
+        fields.classList.remove("hidden");
+    }
+    else{
+        fields.classList.add("hidden");
+    }
+
+}
+
+
+/* PACKAGE VALIDATION */
+
+function validPackageName(name){
+
+    return /^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$/
+    .test(name);
+
+}
+
+
+/* FILE READER */
+
+function readFileAsDataURL(file){
+
+    return new Promise(function(resolve,reject){
+
+        const reader = new FileReader();
+
+        reader.onload = function(){
+            resolve(reader.result);
+        };
+
+        reader.onerror = function(){
+            reject(
+                new Error("File read नहीं हो सकी।")
+            );
+        };
+
+        reader.readAsDataURL(file);
+
+    });
+
+}
+
+
+/* SOURCE DATA */
+
+async function getSourceData(){
+
+    if(selectedSource === "code"){
+
+        const code =
+        document.getElementById("htmlCode")
+        .value.trim();
+
+
+        if(!code){
+            throw new Error("HTML code खाली है।");
+        }
+
+
+        return {
+            type:"html",
+            content:code
+        };
+
+    }
+
+
+    if(selectedSource === "url"){
+
+        const url =
+        document.getElementById("websiteUrl")
+        .value.trim();
+
+
+        if(!url){
+            throw new Error("Website URL डालें।");
+        }
+
+
+        if(!/^https?:\/\//i.test(url)){
+            throw new Error(
+                "URL http:// या https:// से शुरू होना चाहिए।"
+            );
+        }
+
+
+        return {
+            type:"url",
+            url:url
+        };
+
+    }
+
+
+    if(selectedSource === "file"){
+
+        const file =
+        document.getElementById("htmlFile")
+        .files[0];
+
+
+        if(!file){
+            throw new Error(
+                "HTML या ZIP file चुनें।"
+            );
+        }
+
+
+        const data =
+        await readFileAsDataURL(file);
+
+
+        return {
+            type:"file",
+            name:file.name,
+            mime:file.type,
+            data:data
+        };
+
+    }
+
+}
+
+
+/* ICON */
+
+async function getIconData(){
+
+    const file =
+    document.getElementById("iconFile")
+    .files[0];
+
+
+    if(!file){
+        return null;
+    }
+
+
+    return await readFileAsDataURL(file);
+
+}
+
+
+/* SUMMARY */
+
+function updateSummary(){
+
+    const appName =
+    document.getElementById("appName").value;
+
+    const packageName =
+    document.getElementById("packageName").value;
+
+    const version =
+    document.getElementById("versionName").value;
+
+    const admob =
+    document.getElementById("admobEnabled").checked
+    ? "ON"
+    : "OFF";
+
+    const pc =
+    document.getElementById("pcMode").checked
+    ? "ON"
+    : "OFF";
+
+
+    document.getElementById("summary")
+    .innerHTML =
+
+    "<b>App:</b> " +
+    escapeHTML(appName) +
+
+    "<br><b>Package:</b> " +
+    escapeHTML(packageName) +
+
+    "<br><b>Version:</b> " +
+    escapeHTML(version) +
+
+    "<br><b>Source:</b> " +
+    escapeHTML(selectedSource.toUpperCase()) +
+
+    "<br><b>AdMob:</b> " +
+    admob +
+
+    "<br><b>PC Mode:</b> " +
+    pc;
+
+}
+
+
+/* BUILD */
+
+async function buildAPK(){
+
+    const status =
+    document.getElementById("buildStatus");
+
+    const progress =
+    document.getElementById("progressBar");
+
+    const button =
+    document.getElementById("buildButton");
+
+    const download =
+    document.getElementById("downloadAPK");
+
+
+    download.style.display = "none";
+
+
+    try{
+
+        button.disabled = true;
+
+        status.textContent =
+        "Checking configuration...";
+
+        progress.style.width = "10%";
+
+
+        const appName =
+        document.getElementById("appName")
+        .value.trim();
+
+
+        const packageName =
+        document.getElementById("packageName")
+        .value.trim();
+
+
+        const versionName =
+        document.getElementById("versionName")
+        .value.trim();
+
+
+        const versionCode =
+        document.getElementById("versionCode")
+        .value;
+
+
+        if(!appName){
+            throw new Error("App Name डालें।");
+        }
+
+
+        if(!validPackageName(packageName)){
+            throw new Error(
+                "Package Name सही नहीं है। उदाहरण: com.example.game"
+            );
+        }
+
+
+        if(!versionName){
+            throw new Error("Version Name डालें।");
+        }
+
+
+        if(!versionCode){
+            throw new Error("Version Code डालें।");
+        }
+
+
+        const source =
+        await getSourceData();
+
+
+        progress.style.width = "30%";
+
+
+        const icon =
+        await getIconData();
+
+
+        const admobEnabled =
+        document.getElementById("admobEnabled")
+        .checked;
+
+
+        const config = {
+
+            app:{
+                name:appName,
+                packageName:packageName,
+                versionName:versionName,
+                versionCode:Number(versionCode)
+            },
+
+
+            source:source,
+
+
+            icon:icon,
+
+
+            admob:{
+                enabled:admobEnabled,
+
+                appId:
+                document.getElementById("admobAppId")
+                .value.trim(),
+
+                banner:
+                document.getElementById("bannerAdUnitId")
+                .value.trim(),
+
+                interstitial:
+                document.getElementById("interstitialAdUnitId")
+                .value.trim(),
+
+                rewarded:
+                document.getElementById("rewardedAdUnitId")
+                .value.trim()
+            },
+
+
+            permissions:{
+
+                internet:
+                document.getElementById("internetPermission")
+                .checked,
+
+                notifications:
+                document.getElementById("notificationPermission")
+                .checked,
+
+                overlay:
+                document.getElementById("displayPermission")
+                .checked,
+
+                camera:
+                document.getElementById("cameraPermission")
+                .checked,
+
+                microphone:
+                document.getElementById("microphonePermission")
+                .checked,
+
+                storage:
+                document.getElementById("storagePermission")
+                .checked
+            },
+
+
+            pcMode:
+            document.getElementById("pcMode")
+            .checked,
+
+
+            clientVersion:"1.0"
+        };
+
+
+        progress.style.width = "50%";
+
+
+        /*
+        BACKEND CONNECT नहीं होने पर
+        अभी configuration तैयार दिखाएँगे.
+        */
+
+        if(!BUILD_API){
+
+            progress.style.width = "100%";
+
+            status.innerHTML =
+            '<span class="warning">' +
+
+            '⚠️ Build backend अभी connected नहीं है.\n\n' +
+
+            'आपका App Builder तैयार है, लेकिन REAL APK compile करने के लिए secure Android build backend जोड़ना बाकी है.\n\n' +
+
+            'अगले चरण में हम backend + GitHub Actions जोड़ेंगे.' +
+
+            '</span>';
+
+            console.log(
+                "BUILD CONFIG:",
+                config
+            );
+
+            button.disabled = false;
+
+            return;
+        }
+
+
+        /* REAL BACKEND REQUEST */
+
+        status.textContent =
+        "Sending build request...";
+
+
+        const response =
+        await fetch(
+            BUILD_API,
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify(config)
+            }
+        );
+
+
+        progress.style.width = "70%";
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "Build server error: HTTP " +
+                response.status
+            );
+
+        }
+
+
+        const result =
+        await response.json();
+
+
+        progress.style.width = "100%";
+
+
+        if(result.apkUrl){
+
+            status.innerHTML =
+            '<span class="success">' +
+            '✅ APK successfully built!' +
+            '</span>';
+
+
+            download.href =
+            result.apkUrl;
+
+            download.style.display =
+            "block";
+
+
+            button.disabled = false;
+
+            return;
+        }
+
+
+        if(result.jobId){
+
+            status.textContent =
+            "Build started.\nJob ID: " +
+            result.jobId;
+
+            button.disabled = false;
+
+            return;
+        }
+
+
+        status.textContent =
+        "Build request accepted.";
+
+        button.disabled = false;
+
+    }
+
+
+    catch(error){
+
+        progress.style.width = "0%";
+
+        status.innerHTML =
+        '<span class="error">' +
+        "❌ Build error: " +
+        escapeHTML(error.message) +
+        "</span>";
+
+        button.disabled = false;
+
+    }
+
+}
+
+
+/* ESCAPE HTML */
+
+function escapeHTML(value){
+
+    return String(value)
+
+    .replace(/&/g,"&amp;")
+
+    .replace(/</g,"&lt;")
+
+    .replace(/>/g,"&gt;")
+
+    .replace(/"/g,"&quot;")
+
+    .replace(/'/g,"&#039;");
+
+}
+
+
+/* START */
+
+selectSource("code");
+
+toggleAdMob();
+
+</script>
+
+</body>
+</html>
